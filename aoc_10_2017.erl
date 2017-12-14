@@ -9,13 +9,16 @@ main() ->
     Part1 = lists:nth(1, Part1List) * lists:nth(2, Part1List),
     ct:pal("Part1: ~p~n", [Part1]),
 
-    Input2 = input2() ++ [17, 31, 73, 47, 23],
-    SparseHash = knot_hash_64(Input2),
-    DenseHash = spare_to_dense_hash(SparseHash),
+    SparseHash = knot_hash_64(input2()),
+    DenseHash = sparse_to_dense_hash(SparseHash),
     Part2 = convert_list_to_hex(DenseHash),
     ct:pal("Part2: ~s~n", [Part2]).
 
-knot_hash_64(SeqLengths) ->
+knot_hash_64(Input) ->
+    SeqLengths = Input ++ [17, 31, 73, 47, 23],
+    knot_hash_64_func(SeqLengths).
+
+knot_hash_64_func(SeqLengths) ->
     SeqLengths64 = lists:append(lists:duplicate(64, SeqLengths)),
     knot_hash(SeqLengths64).
 
@@ -44,15 +47,15 @@ get_indexes(CurrentPos, Length) ->
 get_index(Index) ->
     Index rem ?SIZE.
 
-spare_to_dense_hash(Hash) ->
-    spare_to_dense_hash(Hash, []).
+sparse_to_dense_hash(Hash) ->
+    sparse_to_dense_hash(Hash, []).
 
 %% For each block of 16, xor all the elements in the block
-spare_to_dense_hash([], Acc) -> lists:reverse(Acc);
-spare_to_dense_hash(Hash, Acc) ->
+sparse_to_dense_hash([], Acc) -> lists:reverse(Acc);
+sparse_to_dense_hash(Hash, Acc) ->
     {[H|T], Rest} = lists:split(16, Hash),
     NewHash = lists:foldl(fun(X, Y) -> X bxor Y end, H, T),
-    spare_to_dense_hash(Rest, [NewHash|Acc]).
+    sparse_to_dense_hash(Rest, [NewHash|Acc]).
     
 convert_list_to_hex(List) ->
     Hex = [ integer_to_list(Int, 16) || Int <- List],
