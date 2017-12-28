@@ -4,50 +4,99 @@
 main() ->
     Input = input(),
 
-    Part1 = duet(Input),
-    ct:pal("Part1: ~p~n", [Part1]),
+    {throw, Part1} = run_program(Input),
+    ct:pal("Part1: ~p~n", [hd(Part1)]),
 
-    Part2 = ok,
+    Part2 = duet(Input),
     ct:pal("Part2: ~p~n", [Part2]).
 
+
 duet(Input) ->
+    {ZipList, RegisterMap} = setup(Input),
+    Self = self(),
+    PidA = spawn(fun() -> run_duet_program(ZipList, RegisterMap#{<<"p">> := 1}, [], Self, undefined) end),
+    PidB = spawn(fun() -> run_duet_program(ZipList, RegisterMap#{<<"p">> := 0}, [], Self, undefined) end),
+    PidA ! {duet, PidB},
+    PidB ! {duet, PidA},
+    receive
+        {_, PidA, TimesSent} ->
+            TimesSent
+    end.
+
+setup(Input) ->
     ZipList = list_to_zlist(Input),
     RegisterMap = maps:from_list([{<<C>>,0}|| {_,<<C>>,_} <- Input, C >= $a, C =< $z]),
-    duet(ZipList, RegisterMap, []).
+    {ZipList, RegisterMap}.
 
-duet({_, []}, RegMap, Sounds) -> 
+run_program(Input) ->
+    {ZipList, RegisterMap} = setup(Input),
+    run_program(ZipList, RegisterMap, []).
+
+run_program({_, []}, RegMap, Sounds) -> 
     {Sounds, RegMap};
-duet(ZList, RegMap, Sounds) ->
+run_program(ZList, RegMap, Sounds) ->
     Instruction = current(ZList),
-    {NewInstruction, NewZList2} = case Instruction of
-        {<<"jgz">>, R, X} ->
-            case RegMap of
-                #{R := Y} when Y > 0 ->
-                    NewZList = jump(binary_to_integer(X), ZList),
-                    {current(NewZList), NewZList};
-                M when is_map(M) ->
-                    {Instruction, ZList};
-                _ ->
-                    case binary_to_integer(R) > 0 of
-                        true ->  
-                            NewZList = jump(binary_to_integer(X), ZList),
-                            {current(NewZList), NewZList};
-                        false ->
-                            {Instruction, ZList}
-                    end
-            end;
-        _ ->
-            {Instruction, ZList}
-    end,
-    try execute_instruction(NewInstruction, RegMap, Sounds, NewZList2) of
-        {NewRegMap, NewSounds} -> duet(next(ZList), NewRegMap, NewSounds)
+    {NewInstruction, NewZList} = handle_jumps(RegMap, ZList, Instruction),
+    try execute_instruction(NewInstruction, RegMap, Sounds) of
+        {NewRegMap, NewSounds} -> run_program(next(NewZList), NewRegMap, NewSounds)
     catch
         Throw -> {throw, Throw} 
     end.
 
+%% Get the Pid of the program we want to talk to from the Parent
+run_duet_program(ZList, RegMap, Sounds, Parent, undefined) -> 
+    receive {duet, Pid} ->
+        run_duet_program(ZList, RegMap, Sounds, Parent, Pid)
+    end;
+run_duet_program(ZList, RegMap, Sounds, Parent, Pid) ->
+    Instruction = current(ZList),
+    {NewInstruction, NewZList} = handle_jumps(RegMap, ZList, Instruction),
+    try execute_instruction_duet(NewInstruction, RegMap, Sounds, Pid) of
+        {NewRegMap, NewSounds} -> run_duet_program(next(NewZList), NewRegMap, NewSounds, Parent, Pid)
+    catch
+        Throw -> Parent ! Throw
+    end.
 
+%% If instruction is jump, then jump by the value of R
+%% Can handle multiple jumps, i.e. jumping to another jump instruction
+handle_jumps(RegMap, ZList, {<<"jgz">>, R, X} = Instruction) ->
+    {NewInstruction, NewZList} = handle_jump(RegMap, ZList, R, X, Instruction),
+    case NewZList of
+        ZList ->
+            {NewInstruction, NewZList};
+        _ ->
+            handle_jumps(RegMap, NewZList, NewInstruction)
+    end;
+handle_jumps(_, ZList, Instruction) ->
+    {Instruction, ZList}.
 
-execute_instruction(Instruction, RegMap, Sounds, ZList) ->
+handle_jump(RegMap, ZList, R, X, Instruction) ->
+    case RegMap of
+        #{R := Y, X := Z} when Y > 0 ->
+            NewZList = jump(Z, ZList),
+            {current(NewZList), NewZList};
+        #{R := Y} when Y > 0 ->
+            NewZList = jump(binary_to_integer(X), ZList),
+            {current(NewZList), NewZList};
+        #{R := Y} when Y =< 0 -> 
+            {Instruction, ZList};
+        _ ->
+            case binary_to_integer(R) > 0 of
+                true ->  
+                    NewZList = jump(binary_to_integer(X), ZList),
+                    {current(NewZList), NewZList};
+                false -> 
+                    {Instruction, ZList}
+            end
+    end.
+
+%% Jump N times in a zipper list
+jump(N, ZList) when N > 0 ->
+    lists:foldl(fun(_, Acc) -> next(Acc) end, ZList, lists:seq(1,N));
+jump(N, ZList) when N < 0 ->
+    lists:foldl(fun(_, Acc) -> prev(Acc) end, ZList, lists:seq(1,abs(N))).
+
+execute_instruction(Instruction, RegMap, Sounds) ->
     case Instruction of
         {<<"set">>, R, X} ->
             case RegMap of
@@ -84,20 +133,34 @@ execute_instruction(Instruction, RegMap, Sounds, ZList) ->
         {<<"snd">>, R, <<>>} ->
             {RegMap, [maps:get(R, RegMap)|Sounds]};
 
-        {<<"rcv">>, R} ->
+        {<<"rcv">>, R, <<>>} ->
             case maps:get(R, RegMap) of
                 0 -> {RegMap, Sounds};
                 _ ->
-                    throw(hd(Sounds))
+                    throw(Sounds)
             end;
         _ -> {RegMap, Sounds}
     end.
 
-jump(N, ZList) when N > 0 ->
-    lists:foldl(fun(_, Acc) -> next(Acc) end, ZList, lists:seq(1,N));
+%% Different rules for snd and rcv when running as a duet
+execute_instruction_duet(Instruction, RegMap, Sounds, Pid) ->
+    case Instruction of
+        {<<"snd">>, R, <<>>} ->
+            Val = maps:get(R, RegMap),
+            Pid ! integer_to_binary(Val),
+            {RegMap, [Val|Sounds]};
 
-jump(N, ZList) when N < 0 ->
-    lists:foldl(fun(_, Acc) -> prev(Acc) end, ZList, lists:seq(1,abs(N))).
+        {<<"rcv">>, R, <<>>} ->
+            Result = receive
+                X ->
+                    execute_instruction({<<"set">>, R, X}, RegMap, Sounds)
+            after 10 ->
+                throw({deadlock, self(), length(Sounds)})
+            end,
+            Result;
+        _ -> 
+            execute_instruction(Instruction, RegMap, Sounds)
+    end.
 
 
 input() ->
@@ -108,6 +171,7 @@ input() ->
 trim_binary(<<" ", Rest/binary>>) -> Rest;
 trim_binary(Bin) -> Bin.
 
+%% Functions to use a zipper list
 list_to_zlist(L) when is_list(L) -> {[], L}.
 zlist_to_list({Pre, Post}) -> lists:reverse(Pre) ++ Post.
 prev({[H|T], Post}) -> {T, [H|Post]}.
