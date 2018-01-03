@@ -24,27 +24,18 @@ run_turing_machine(State, N, MapRules, Tape) ->
 %% ----------------------------------------
 %% Functions for Turing Tape
 %% ----------------------------------------
-tape_left({[], Post}) -> {[], [<<"0">>|Post]};
-tape_left(ZList) -> prev(ZList).
-
-tape_right({Pre, []}) -> {Pre, [<<"0">>]};
-tape_right(ZList) -> next(ZList).
-
 write_to_tape(X, {Pre, []}) -> {Pre, [X]};
 write_to_tape(X, {Pre, [_|Rest]}) -> {Pre, [X|Rest]}.
 
-move_tape(<<"left">>, Tape) -> tape_left(Tape);
-move_tape(<<"right">>, Tape) -> tape_right(Tape).
+move_tape(<<"left">>, {[], Post}) -> {[], [<<"0">>|Post]};
+move_tape(<<"left">>, {[H|T], Post}) -> {T, [H|Post]};
+move_tape(<<"right">>, {Pre, []}) -> {Pre, [<<"0">>]};
+move_tape(<<"right">>, {Pre, [H|T]}) -> {[H|Pre], T}.
 
 read_tape({_, []}) -> <<"0">>;
-read_tape(ZList) -> current(ZList).
+read_tape({_, [Current|_]}) -> Current.
 
-%% Functions to use a zipper list
 list_to_zlist(L) when is_list(L) -> {[], L}.
-zlist_to_list({Pre, Post}) -> lists:reverse(Pre) ++ Post.
-prev({[H|T], Post}) -> {T, [H|Post]}.
-next({Pre, [H|T]}) -> {[H|Pre], T}.
-current({_, [Current|_]}) -> Current.
 
 %% ----------------------------------------
 %% Input Functions
