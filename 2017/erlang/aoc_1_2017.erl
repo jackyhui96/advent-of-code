@@ -4,12 +4,10 @@
 main() ->
     Input = input(),
     Length = length(Input),
-
+    
     Part1 = calc_captcha(Input, 1),
-    ct:pal("Part1: ~p~n", [Part1]),
-
     Part2 = calc_captcha(Input, round(Length/2)),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 calc_captcha(List, Offset) ->
     Length = length(List),
@@ -28,5 +26,5 @@ calc_captcha(List, Index, Offset, Length, Acc) ->
     calc_captcha(List, Index+1, Offset, Length, NewAcc).
 
 input() ->
-    {ok, Data} = file:read_file("day1_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day1_data.txt"),
     [ X - $0 || <<X>> <= Data, X =/= $\n].

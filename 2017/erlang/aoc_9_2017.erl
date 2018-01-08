@@ -3,9 +3,7 @@
 
 main() ->
     Input = input(),
-    {TotalScore, GarbageSize} = process_stream(Input, 0, 0, group, 0),
-    ct:pal("Part1: ~p~n", [TotalScore]),
-    ct:pal("Part2: ~p~n", [GarbageSize]).
+    process_stream(Input, 0, 0, group, 0).
 
 process_stream(<<>>, _Level, Score, _Type, GarbageSize) -> 
     {Score, GarbageSize};
@@ -32,5 +30,5 @@ process_stream(<<_:1/binary, Data/binary>>, Level, Score, Type, GarbageSize) ->
     process_stream(Data, Level, Score, Type, GarbageSize).
 
 input() ->
-    {ok, Data} = file:read_file("day9_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day9_data.txt"),
     Data.

@@ -4,14 +4,12 @@
 -define(GRID_SIZE, 128).
 
 main() ->
-    Input = input(),
-    BitHashes = lists:flatten([convert_hex_to_bits(knot_hash(I)) || I <- Input]),
-    
-    Part1 = lists:sum(BitHashes),
-    ct:pal("Part1: ~p~n", [Part1]),
 
+    Input = input(),
+    BitHashes = lists:flatten([convert_hex_to_bits(knot_hash(I)) || I <- Input]),    
+    Part1 = lists:sum(BitHashes),
     Part2 = length(find_all_regions(BitHashes)),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 %% Uses pattern matching to pull out the 4 bits for each Hexdigit
 convert_hex_to_bits(Hex) ->
@@ -44,8 +42,8 @@ find_neighbours({A,B}, GridMap) ->
                                             F(Index, GridMap)].
 
 input() ->
-    Input = "oundnydw",
-    [Input ++ [$-|erlang:integer_to_list(N)]|| N <- lists:seq(0, ?GRID_SIZE-1)].
+    {ok, Data} = file:read_file("../inputs/day14_data.txt"),
+    [binary_to_list(Data) ++ [$-|erlang:integer_to_list(N)]|| N <- lists:seq(0, ?GRID_SIZE-1)].
     
 knot_hash(Input) ->
     SparseHash = aoc_10_2017:knot_hash_64(Input),

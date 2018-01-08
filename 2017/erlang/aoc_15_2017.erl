@@ -3,17 +3,15 @@
 
 main() ->
     {GenAStart, GenBStart} = input(),
-
     InitialA = generate_a(GenAStart),
     InitialB = generate_b(GenBStart),
 
     Part1 = dueling_generators(InitialA, InitialB, 0, 40000000),
-    ct:pal("Part1: ~p~n", [Part1]),
-
     InitialA2 = generate_a2(GenAStart),
     InitialB2 = generate_b2(GenBStart),
     Part2 = dueling_generators2(InitialA2, InitialB2, 0, 5000000),
-    ct:pal("Part2: ~p~n", [Part2]).
+
+    {Part1, Part2}.
     
 
 dueling_generators(_, _, Count, 0) -> Count;
@@ -58,6 +56,8 @@ generator(Prev, Factor) ->
     (Prev * Factor) rem 2147483647.
 
 input() ->
-    GenA = 289,
-    GenB = 629,
-    {GenA, GenB}.
+    {ok, Data} = file:read_file("../inputs/day15_data.txt"),
+    [LineA, LineB] = binary:split(Data, <<"\n">>),
+    <<"Generator A starts with ", A/binary>> = LineA,
+    <<"Generator B starts with ", B/binary>> = LineB,
+    {binary_to_integer(A), binary_to_integer(B)}.

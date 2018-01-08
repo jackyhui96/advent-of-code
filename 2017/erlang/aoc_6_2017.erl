@@ -4,10 +4,11 @@
 main() ->
     Input = input(),
     NumberedInput = lists:zip(Input, lists:seq(1, length(Input))),
-    {Part1Ans, State} = reallocation(NumberedInput, [], length(NumberedInput)),
-    ct:pal("Part1: ~p~n", [Part1Ans]),
-    Part2Ans = reallocation2(State, State, length(NumberedInput), 0),
-    ct:pal("Part2: ~p~n", [Part2Ans]).
+    
+    {Part1, State} = reallocation(NumberedInput, [], length(NumberedInput)),
+    Part2 = reallocation2(State, State, length(NumberedInput), 0),
+    
+    {Part1, Part2}.
 
 reallocation2(State, TargetState, Length, Count) -> 
     {Blocks, IndexOfMaxBlocks} = hd(sort_highest_first(State)),
@@ -58,6 +59,6 @@ sort_highest_first(List) ->
     lists:sort(F, List).
 
 input() ->
-    {ok, Data} = file:read_file("day6_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day6_data.txt"),
     Bins = binary:split(Data, [<<"\t">>, <<"\n">>], [global, trim_all]),
     [binary_to_integer(B) || B <- Bins].

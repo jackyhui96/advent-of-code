@@ -3,12 +3,9 @@
 
 main() ->
     Input = input(),
-
-    %% Currently logs the number of multiply operations until program crashes
-    %% Need to refactor code in future to avoid crashing
-    run_program(Input).
-
-%% Part2 is at the bottom of this code
+    Part1 = run_program(Input),
+    Part2 = optimise_program(),
+    {Part1, Part2}.
 
 execute_instruction(Instruction, RegMap, Acc) ->
     case Instruction of
@@ -41,10 +38,13 @@ run_program({_, []}, RegMap, Acc) ->
     {RegMap, Acc};
 run_program(ZList, RegMap, Acc) ->
     Instruction = current(ZList),
-    {NewInstruction, NewZList} = handle_jumps(RegMap, ZList, Instruction),
-    ct:pal("Debug: ~p~n", [length([mul || mul <- Acc])]),
-    {NewRegMap, NewAcc} = execute_instruction(NewInstruction, RegMap, Acc),
-    run_program(next(NewZList), NewRegMap, NewAcc).
+    try handle_jumps(RegMap, ZList, Instruction) of
+        {NewInstruction, NewZList} -> 
+            {NewRegMap, NewAcc} = execute_instruction(NewInstruction, RegMap, Acc),
+            run_program(next(NewZList), NewRegMap, NewAcc)
+    catch
+        error:_ -> length([mul || mul <- Acc])
+    end.
 
 handle_jumps(RegMap, ZList, {<<"jnz">>, R, X} = Instruction) ->
     {NewInstruction, NewZList} = handle_jump(RegMap, ZList, R, X, Instruction),
@@ -78,7 +78,7 @@ handle_jump(RegMap, ZList, R, X, Instruction) ->
     end.
 
 input() ->
-    {ok, Data} = file:read_file("day23_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day23_data.txt"),
     Lines = binary:split(Data, [<<"\n">>], [global, trim_all]),
     [{Op, R, trim_binary(Rest)}|| <<Op:3/binary, " ", R:1/binary, Rest/binary>> <- Lines].
 
@@ -122,7 +122,7 @@ optimise_program() ->
 composite_check(N) ->
     composite_check(N, lists:seq(2, N-1)).
 
-composite_check(N, []) -> false;
+composite_check(_, []) -> false;
 composite_check(N, [H|T]) ->
     case N rem H of
         0 -> true;

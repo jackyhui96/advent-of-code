@@ -3,12 +3,10 @@
 
 main() ->
     Input = input(),
-    {Part1, Part2} = checksum(Input, 0, 0),
-    ct:pal("Part1: ~b~n", [trunc(Part1)]),
-    ct:pal("Part2: ~b~n", [trunc(Part2)]).
+    checksum(Input, 0, 0).
 
 checksum([], Sum1, Sum2) ->
-    {Sum1, Sum2};
+    {trunc(Sum1), trunc(Sum2)};
 checksum([H|T], Sum1, Sum2) ->
     Range1 = lists:max(H) - lists:min(H),
     Range2 = divisible_values(H, H),
@@ -30,7 +28,7 @@ divisible_values([H|T],Input) ->
     end.
 
 input() ->
-    {ok, Data} = file:read_file("day2_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day2_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     [begin 
         Bin = binary:split(L, <<"\t">>, [global, trim_all]),

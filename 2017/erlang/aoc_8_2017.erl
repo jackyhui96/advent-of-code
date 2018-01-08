@@ -8,14 +8,13 @@ main() ->
     Registries = lists:usort(lists:append([[Var1, Var2] || {#{var := Var1}, #{var := Var2}} <- Instructions])),
     RegistryMap = lists:foldl(fun(X, Acc) -> Acc#{X => 0} end, #{}, Registries),
     {NewRegistryMap, Max} = run_instructions(Instructions, RegistryMap, 0),
-    MaxVal = maps:fold(fun(K, V, Acc) -> 
+    MaxVal = maps:fold(fun(_, V, Acc) -> 
         case V > Acc of 
             true -> V; 
             false -> Acc 
         end 
     end, 0, NewRegistryMap),
-    ct:pal("Part1: ~p~n", [MaxVal]),
-    ct:pal("Part2: ~p~n", [Max]).
+    {MaxVal, Max}.
 
 run_instructions([], RegistryMap, Max) -> {RegistryMap, Max};
 run_instructions([{UvMap, CMap}|Instructions], RegistryMap, Max) ->
@@ -55,7 +54,7 @@ operation(<<"<=">>, Var, Num) ->
     Var =< Num.   
 
 input() ->
-    {ok, Data} = file:read_file("day8_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day8_data.txt"),
     binary:split(Data, <<"\r\n">>, [global, trim_all]).
 
 get_registry_update(Line) ->
