@@ -4,11 +4,9 @@
 main() ->
     Input = input(),
     {_, Part1} = find_closest_to_origin(Input),
-    ct:pal("Part1: ~p~n", [Part1]),
-
     %% No more collisions after 39 iterations
     Part2 = length(simulate_particles(Input, 39)),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 
 simulate_particles(ParticleList, 0) -> ParticleList;
@@ -69,7 +67,7 @@ create_particle_list([H|T], Acc) ->
     create_particle_list(T, [Result|Acc]).
 
 input() ->
-    {ok, Data} = file:read_file("day20_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day20_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     SplitLines = [binary:split(L, <<", ">>, [global, trim_all]) || L <- Lines],
     create_particle_list(SplitLines).

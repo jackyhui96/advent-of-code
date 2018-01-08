@@ -2,12 +2,12 @@
 -compile(export_all).
 
 main() ->
-    ct:pal("Start: ~n"),
     {StartState, N, MapRules} = input(),
     
     {Pre, Post} = run_turing_machine(StartState, N, MapRules, list_to_zlist([<<"0">>])),
     Part1 = length([1 || <<"1">> <- Pre]) + length([1 || <<"1">> <- Post]),
-    ct:pal("Part1: ~p~n", [Part1]).
+    Part1.
+    %% No Part2 on the last day
 
 run_turing_machine(_, 0, _, Tape) -> Tape;
 run_turing_machine(State, N, MapRules, Tape) ->
@@ -43,7 +43,7 @@ list_to_zlist(L) when is_list(L) -> {[], L}.
 
 %% Decided to parse the input... in a messy binary pattern match way
 input() ->
-    {ok, Data} = file:read_file("day25_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day25_data.txt"),
     [Start|Groups] = binary:split(Data, <<"\n\n">>, [global, trim_all]),
     <<"Begin in state ", StartState:1/binary, ".\nPerform a diagnostic checksum after ", Rest/binary>> = Start,
     [N, _] = binary:split(Rest, <<" ">>),

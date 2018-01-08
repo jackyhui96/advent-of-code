@@ -4,10 +4,9 @@
 main() ->
     Input = input(),
     Part1 = spiral_memory(lists:seq(2,Input), #{{0,0} => 1}, {0,0}, right),
-    ct:pal("Part1: ~p~n", [Part1]),
     Part2 = spiral_memory2(1, #{{0,0} => 1}, {0,0}, right, Input),
-    ct:pal("Part2: ~p~n", [Part2]).
-
+    {Part1, Part2}.
+    
 spiral_memory([], _, {X, Y}, _) ->
     abs(X) + abs(Y);
 
@@ -96,7 +95,8 @@ spiral_memory2(_, Map, {X,Y}, down, Max) ->
     spiral_memory2(Value, Map#{NewCoord => Value}, NewCoord, Direction, Max).
 
 input() ->
-    265149.
+    {ok, Data} = file:read_file("../inputs/day3_data.txt"),
+    binary_to_integer(Data).
 
 get_valid_neighbours(Coord, Map) ->
     [begin 

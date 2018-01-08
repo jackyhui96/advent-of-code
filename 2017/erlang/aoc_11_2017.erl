@@ -13,10 +13,8 @@ main() ->
     },
     StepMap = hex_steps(Input, EmptyStepMap),
     Part1 = get_steps_away(StepMap),
-    ct:pal("Part1: ~p~n", [Part1]),
-
     Part2 = hex_steps(Input, EmptyStepMap, 0),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 %% Returns the least number of steps required to reach the path in StepMap
 get_steps_away(StepMap) ->
@@ -61,5 +59,5 @@ hex_steps([Step|Rest], StepMap, Max) ->
     hex_steps(Rest, NewStepMap, NewMax).
 
 input() ->
-    {ok, Data} = file:read_file("day11_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day11_data.txt"),
     binary:split(Data, [<<",">>, <<"\n">>], [global, trim_all]).

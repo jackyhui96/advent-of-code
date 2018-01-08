@@ -4,11 +4,9 @@
 main() ->
     Input = input(),
 
-    {throw, Part1} = run_program(Input),
-    ct:pal("Part1: ~p~n", [hd(Part1)]),
-
+    {throw, [Part1|_]} = run_program(Input),
     Part2 = duet(Input),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 
 duet(Input) ->
@@ -164,7 +162,7 @@ execute_instruction_duet(Instruction, RegMap, Sounds, Pid) ->
 
 
 input() ->
-    {ok, Data} = file:read_file("day18_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day18_data.txt"),
     Lines = binary:split(Data, [<<"\n">>], [global, trim_all]),
     [{Op, R, trim_binary(Rest)}|| <<Op:3/binary, " ", R:1/binary, Rest/binary>> <- Lines].
 

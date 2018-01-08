@@ -8,10 +8,8 @@ main() ->
     Programs = << <<X>> || X <- lists:seq($a, $p)>>,
 
     Part1 = program_dance(Input, Programs),
-    ct:pal("Part1: ~p~n", [Part1]),
-
     Part2 = program_dance_cycle(Input, Programs),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 
 program_dance_cycle(Input, Programs) ->
@@ -92,5 +90,5 @@ split_by_slash(<<A:2/binary, "/", B:1/binary>>) -> {A, B};
 split_by_slash(<<A:2/binary, "/", B:2/binary>>) -> {A, B}.
     
 input() ->
-    {ok, Data} = file:read_file("day16_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day16_data.txt"),
     binary:split(Data, [<<",">>, <<"\n">>], [global, trim_all]).

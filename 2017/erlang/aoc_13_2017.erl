@@ -4,10 +4,8 @@
 main() ->
     Input = input(),
     Part1 = get_severity_of_packet_journey(Input),
-    ct:pal("Part1: ~p~n", [Part1]),
     Part2 = get_delay_of_undetected_packet_journey(Input),
-    ct:pal("Part2: ~p~n", [Part2]).
-
+    {Part1, Part2}.
 
 get_severity_of_packet_journey(Layers) ->
     get_severity_of_packet_journey(Layers, []).
@@ -52,7 +50,7 @@ run_packet_through_firewall([{Layer, Depth}|Rest], Scores, Offset) ->
 
 
 input() ->
-    {ok, Data} = file:read_file("day13_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day13_data.txt"),
     Lines = binary:split(Data, [<<"\n">>, <<": ">>], [global, trim_all]),
     F = fun F([], Acc) -> 
             lists:reverse(Acc);

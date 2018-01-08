@@ -3,15 +3,15 @@
 
 main() ->
     Input = input(),
+    
     Root = find_root(maps:to_list(Input)),
-    ct:pal("Part1: ~p~n", [Root]),
     {Part2Node, Weight} = find_wrong_weight(Root, Input),
     [Part2List] = [ Children || {_, Children} <- maps:values(Input), lists:member(Part2Node, Children)],
     Part2 = hd([calculate_weight(X, Input) || X <- Part2List, X =/= Part2Node]) - calculate_weight(Part2Node, Input) + Weight,
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Root, Part2}.
 
 input() ->
-    {ok, Bin} = file:read_file("day7_data.txt"),
+    {ok, Bin} = file:read_file("../inputs/day7_data.txt"),
     BinLines = binary:split(Bin, <<"\n">>, [global, trim_all]),
     format_bin_lines(BinLines).
 

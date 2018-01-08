@@ -7,12 +7,12 @@ main() ->
     Input = input(),
     Part1List = knot_hash(Input),
     Part1 = lists:nth(1, Part1List) * lists:nth(2, Part1List),
-    ct:pal("Part1: ~p~n", [Part1]),
 
     SparseHash = knot_hash_64(input2()),
     DenseHash = sparse_to_dense_hash(SparseHash),
     Part2 = convert_list_to_hex(DenseHash),
-    ct:pal("Part2: ~s~n", [Part2]).
+
+    {Part1, Part2}.
 
 knot_hash_64(Input) ->
     SeqLengths = Input ++ [17, 31, 73, 47, 23],
@@ -42,7 +42,7 @@ rev_length_elements(CurrentPos, Length, Map) ->
     lists:foldl(fun({Index, Element}, Acc) -> Acc#{Index => Element} end, Map, NewKeyVals).
 
 get_indexes(CurrentPos, Length) ->
-    [ get_index(Index) || Index <- lists:seq(CurrentPos, CurrentPos+Length-1)].
+    [get_index(Index) || Index <- lists:seq(CurrentPos, CurrentPos+Length-1)].
 
 get_index(Index) ->
     Index rem ?SIZE.
@@ -64,12 +64,11 @@ convert_list_to_hex(List) ->
     string:to_lower(lists:append(PaddedHex)).
 
 input() ->
-    {ok, Data} = file:read_file("day10_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day10_data.txt"),
     Bin = binary:split(Data, [<<",">>, <<"\n">>], [global, trim_all]),
     [ binary_to_integer(X) || X <- Bin].
 
 input2() ->
-    {ok, Data} = file:read_file("day10_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day10_data.txt"),
     [C|| <<C>> <= Data, C =/= $\n].
-    % [C|| <<C>> <= <<"Rimbuod">>, C =/= $\n].
     

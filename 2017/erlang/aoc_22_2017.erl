@@ -6,11 +6,11 @@ main() ->
     StartIndex = get_middle_index(Input),
 
     Part1Acc = sporifica_virus(StartIndex, up, [], Input, 10000),
-    %% Count the number of times the virus infected a node
-    ct:pal("Part1: ~p~n", [length([1 || infect <- Part1Acc])]),
-
+    Part1 = length([1 || infect <- Part1Acc]),
     Part2Acc = evolved_sporifica_virus(StartIndex, up, [] ,Input, 10000000),
-    ct:pal("Part2: ~p~n", [length([1 || infect <- Part2Acc])]).
+    Part2 = length([1 || infect <- Part2Acc]),
+
+    {Part1, Part2}.
 
     
 sporifica_virus(_, _, Acc, _, 0) -> Acc;
@@ -74,7 +74,7 @@ turn(down, reverse) -> up;
 turn(right, reverse) -> left.
 
 input() ->
-    {ok, Data} = file:read_file("day22_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day22_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     Size = length(Lines),
     create_grid_map(Lines, 0, Size, #{}).

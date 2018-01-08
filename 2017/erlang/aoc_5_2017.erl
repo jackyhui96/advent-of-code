@@ -5,10 +5,10 @@ main() ->
     Input = input(),
     NumberedInput = lists:zip(lists:seq(1, length(Input)), Input),
     Map = maps:from_list(NumberedInput),
+    
     Part1 = map_jump(1, 0, Map),
-    ct:pal("Part1: ~p~n", [Part1]),
     Part2 = map_jump2(1, 0, Map),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 map_jump(Index, Count, Jumps) ->
     case Jumps of
@@ -34,6 +34,6 @@ map_jump2(Index, Count, Jumps) ->
     end.
 
 input() ->
-    {ok, Data} = file:read_file("day5_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day5_data.txt"),
     Bins = binary:split(Data, <<"\n">>, [global, trim_all]),
     [binary_to_integer(B) || B <- Bins].

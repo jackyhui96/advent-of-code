@@ -3,10 +3,7 @@
 
 main() ->
     GridMap = input(),
-    {Part1, Part2} = packet_route(GridMap),
-    ct:pal("Part1: ~p~n", [Part1]),
-    ct:pal("Part2: ~p~n", [Part2]).
-
+    packet_route(GridMap).
 
 packet_route(GridMap) ->
     FirstRow = [ Val || {{1,_}, _} = Val <- maps:to_list(GridMap)],
@@ -56,6 +53,6 @@ create_grid([H|T], Map, Row) ->
     create_grid(T, NewMap, Row+1).
 
 input() ->
-    {ok, Data} = file:read_file("day19_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day19_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     create_grid(Lines).

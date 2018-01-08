@@ -8,15 +8,10 @@ main() ->
 
     Art1 = generate_art(Start, Rules, 5),
     Part1 = length([ 1 || $# <- Art1]),
-    ct:pal("Part1: ~p~n", [Part1]),
-
-    eprof:start(),
-    eprof:start_profiling([self()]),
     Art2 = generate_art(Start, Rules, 18),
-    eprof:stop_profiling(),
-    eprof:analyze(total),
     Part2 = length([ 1 || $# <- Art2]),
-    ct:pal("Part2: ~p~n", [Part2]).
+
+    {Part1, Part2}.
 
 generate_art(String, _, 0) -> String;
 generate_art(String, Rules, N) ->
@@ -128,15 +123,14 @@ get_rotations(Grid) ->
     
 
 input() ->
-    {ok, Data} = file:read_file("day21_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day21_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
-    F = fun
-        F(<<In1:2/binary, "/", In2:2/binary, " => ", Out1:3/binary, "/", Out2:3/binary, "/", Out3:3/binary>>) ->
-            {binary_to_list(<<In1/binary,In2/binary>>), binary_to_list(<<Out1/binary,Out2/binary,Out3/binary>>)};
-        F(<<In1:3/binary, "/", In2:3/binary, "/", In3:3/binary, " => ", Out1:4/binary, "/", Out2:4/binary, "/", Out3:4/binary, "/", Out4:4/binary>>) ->    
-            {binary_to_list(<<In1/binary,In2/binary,In3/binary>>), binary_to_list(<<Out1/binary,Out2/binary,Out3/binary,Out4/binary>>)}
-    end,
-    maps:from_list([F(L)|| L <- Lines]).
+    maps:from_list([parse_input(L)|| L <- Lines]).
+
+parse_input(<<In1:16, "/", In2:18, " => ", Out1:24, "/", Out2:24, "/", Out3:24>>) ->
+     {binary_to_list(<<In1/binary,In2/binary>>), binary_to_list(<<Out1/binary,Out2/binary,Out3/binary>>)};
+parse_input(<<In1:24, "/", In2:24, "/", In3:24, " => ", Out1:32, "/", Out2:32, "/", Out3:32, "/", Out4:32>>) ->
+    {binary_to_list(<<In1/binary,In2/binary,In3/binary>>), binary_to_list(<<Out1/binary,Out2/binary,Out3/binary,Out4/binary>>)}.
 
 
 

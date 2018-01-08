@@ -4,9 +4,8 @@
 main() ->
     Input = input(),
     Part1 = length(find_programs_in_group(Input, <<"0">>, [])),
-    ct:pal("Part1: ~p~n", [Part1]),
     Part2 = length(find_all_groups(Input)),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 
 find_all_groups(Map) ->
@@ -42,7 +41,7 @@ find_programs_in_group(Map, Program, Acc) ->
 
 
 input() ->
-    {ok, Data} = file:read_file("day12_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day12_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     maps:from_list([begin 
         [Program|ConnectedPrograms] = binary:split(L, [<<" <-> ">>, <<", ">>], [global, trim_all]), 

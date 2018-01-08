@@ -7,7 +7,6 @@ main() ->
     %% Slow implementation, not sure how to improve
     Bridges = find_bridges(Input),
     {Part1, _} = lists:max(Bridges),
-    ct:pal("Part1: ~p~n", [Part1]),
 
     F = fun({Strength, Length}, {MaxStrength, MaxLength}) ->
         case Length of
@@ -20,7 +19,8 @@ main() ->
         end
     end,
     {Part2, _} = lists:foldl(F, {0,0}, Bridges),
-    ct:pal("Part2: ~p~n", [Part2]).
+
+    {Part1, Part2}.
 
 find_bridges(List) ->
     StartList = find_matching_parts(0, List),
@@ -94,7 +94,7 @@ find_matching_parts([{A, B},{_, A}|_], List) ->
     [X || X <- List, F(X)].
 
 input() ->
-    {ok, Data} = file:read_file("day24_data.txt"),
+    {ok, Data} = file:read_file("../inputs/day24_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     F = fun 
         F(<<A:1/binary, "/", B/binary>>) ->

@@ -3,12 +3,9 @@
 
 main() ->
     Input = input(),
-
     [_,Part1|_] = spinlock(Input, 2018),
-    ct:pal("Part1: ~p~n", [Part1]),
-
     Part2 = spinlock2(Input, 50000000),
-    ct:pal("Part2: ~p~n", [Part2]).
+    {Part1, Part2}.
 
 
 spinlock(Step, Size) ->
@@ -48,5 +45,7 @@ rotate(Step, [], Acc) ->
 rotate(Step, [H|T], Acc) ->
     rotate(Step-1, T, [H|Acc]).
 
-input() -> 328.
+input() -> 
+    {ok, Data} = file:read_file("../inputs/day17_data.txt"),
+    binary_to_integer(Data).
 
