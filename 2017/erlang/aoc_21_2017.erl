@@ -72,7 +72,6 @@ break_grid(String, NumOfSquares, SubSize, Acc) when SubSize =:= 2 ->
     LineSize = round(math:sqrt(NumOfSquares))*SubSize,
     Squares = [
         begin
-            % my_sublist(String, X, SubSize) ++ my_sublist(String, X+LineSize, SubSize)
             A = binary:part(Bin, {X, SubSize}),
             B = binary:part(Bin, {X+LineSize, SubSize}),
             binary_to_list(<<A/binary, B/binary>>)
@@ -86,7 +85,6 @@ break_grid(String, NumOfSquares, SubSize, Acc) when SubSize =:= 3 ->
     LineSize = round(math:sqrt(NumOfSquares))*SubSize,
     Squares = [
         begin
-            % my_sublist(String, X, SubSize) ++ my_sublist(String, X+LineSize, SubSize) ++ my_sublist(String, X+(LineSize*2), SubSize)
             A = binary:part(Bin, {X, SubSize}),
             B = binary:part(Bin, {X+LineSize, SubSize}),
             C = binary:part(Bin, {X+(LineSize*2), SubSize}),
@@ -127,9 +125,9 @@ input() ->
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     maps:from_list([parse_input(L)|| L <- Lines]).
 
-parse_input(<<In1:16, "/", In2:18, " => ", Out1:24, "/", Out2:24, "/", Out3:24>>) ->
+parse_input(<<In1:2/binary, "/", In2:2/binary, " => ", Out1:3/binary, "/", Out2:3/binary, "/", Out3:3/binary>>) ->
      {binary_to_list(<<In1/binary,In2/binary>>), binary_to_list(<<Out1/binary,Out2/binary,Out3/binary>>)};
-parse_input(<<In1:24, "/", In2:24, "/", In3:24, " => ", Out1:32, "/", Out2:32, "/", Out3:32, "/", Out4:32>>) ->
+parse_input(<<In1:3/binary, "/", In2:3/binary, "/", In3:3/binary, " => ", Out1:4/binary, "/", Out2:4/binary, "/", Out3:4/binary, "/", Out4:4/binary>>) ->
     {binary_to_list(<<In1/binary,In2/binary,In3/binary>>), binary_to_list(<<Out1/binary,Out2/binary,Out3/binary,Out4/binary>>)}.
 
 

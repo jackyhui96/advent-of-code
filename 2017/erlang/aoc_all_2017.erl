@@ -4,8 +4,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 run_test(Day, F, Answer) ->
-    %% Compile the module for each day
-    compile:file("aoc_" ++ integer_to_list(Day) ++ "_2017"),
+    
+    
     {Time, Result} = timer:tc(F, []),
     io:format("Day ~2.. B: ~p, Time:~10.. B~n", [Day, ?assertEqual(Answer, Result), Time]).
 
@@ -37,4 +37,5 @@ main() ->
         {24, fun aoc_24_2017:main/0, {1940, 1928}},
         {25, fun aoc_25_2017:main/0, 2526}
     ],
+    lists:foreach(fun({Day, _, _}) -> compile:file("aoc_" ++ integer_to_list(Day) ++ "_2017") end, Days),
     lists:foreach(fun({Day, Func, Ans}) -> run_test(Day, Func, Ans) end, Days).
