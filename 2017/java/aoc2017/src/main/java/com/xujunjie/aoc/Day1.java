@@ -13,7 +13,6 @@ public class Day1 {
         int total = IntStream.range(0, length)
             .map(i -> compareTo(i, offset, input, length))
             .sum();
-
         return total;
     }
 
@@ -24,7 +23,6 @@ public class Day1 {
         int currentValue = (int) string.charAt(index) - 48;
         int targetIndex = (index + offset) % length;
         int targetValue = (int) string.charAt(targetIndex) - 48;
-
         return currentValue == targetValue ? currentValue : 0;
     }
 }
