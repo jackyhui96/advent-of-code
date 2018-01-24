@@ -6,31 +6,23 @@ main() ->
     checksum(Input, 0, 0).
 
 checksum([], Sum1, Sum2) ->
-    {trunc(Sum1), trunc(Sum2)};
-checksum([H|T], Sum1, Sum2) ->
-    Range1 = lists:max(H) - lists:min(H),
-    Range2 = divisible_values(H, H),
-    checksum(T, Sum1+Range1, Sum2+Range2).
+    {Sum1, trunc(Sum2)};
+checksum([Row|Rest], Sum1, Sum2) ->
+    Range1 = lists:max(Row) - lists:min(Row),
+    Range2 = even_divisible_values(Row),
+    checksum(Rest, Sum1+Range1, Sum2+Range2).
 
-divisible_values(Input) ->
-    divisible_values(Input,Input).
+even_divisible_values([H|T]) -> even_divisible_values(H, T, T).
 
-divisible_values([], _Input) ->
-    error;
-
-divisible_values([H|T],Input) ->
-    Result = [ {X rem H, X / H} || X <- Input--[H]],
-    case lists:keyfind(0, 1, Result) of
-        {0, Val} -> 
-            Val;
-        false ->
-            divisible_values(T, Input)
-    end.
+even_divisible_values(_, [], List) -> even_divisible_values(List);
+even_divisible_values(X, [Y|_], _) when X rem Y =:= 0 -> X / Y;
+even_divisible_values(X, [Y|_], _) when Y rem X =:= 0 -> Y / X;
+even_divisible_values(X, [_|T], List) -> even_divisible_values(X, T, List).
 
 input() ->
     {ok, Data} = file:read_file("../inputs/day2_data.txt"),
     Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
     [begin 
         Bin = binary:split(L, <<"\t">>, [global, trim_all]),
-        [ binary_to_integer(B) || B <- Bin]
+        [binary_to_integer(B) || B <- Bin]
     end || L <- Lines].
