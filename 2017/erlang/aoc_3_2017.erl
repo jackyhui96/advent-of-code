@@ -9,90 +9,47 @@ main() ->
     
 spiral_memory([], _, {X, Y}, _) ->
     abs(X) + abs(Y);
+spiral_memory([H|T], Map, Pos, Direction) ->
+    {Target, NewCoord} = move(Pos, Direction),
+    NewDirection = rotate(Direction, Target, Map),
+    spiral_memory(T, Map#{NewCoord => H}, NewCoord, NewDirection).
 
-spiral_memory([H|T], Map, {X,Y}, right) ->
-    Target = {X+1, Y+1},
-    NewCoord = {X+1, Y},
-    Direction = case Map of
-        #{Target := _} -> right;
-        _ -> up
-    end,
-    spiral_memory(T, Map#{NewCoord => H}, NewCoord, Direction);
+spiral_memory2(Current, _Dict, _Coord, _, Max) when Current > Max -> Current;
+spiral_memory2(_, Map, Pos, Direction, Max) ->
+    {Target, NewCoord} = move(Pos, Direction),
+    Neighbours = get_valid_neighbours(NewCoord, Map),
+    Value = lists:sum(Neighbours),
+    NewDirection = rotate(Direction, Target, Map),
+    spiral_memory2(Value, Map#{NewCoord => Value}, NewCoord, NewDirection, Max).
 
-spiral_memory([H|T], Map, {X,Y}, up) ->
-    Target = {X-1, Y+1},
-    NewCoord = {X, Y+1},
-    Direction = case Map of
-        #{Target := _} -> up;
-        _ -> left
-    end,
-    spiral_memory(T, Map#{NewCoord => H}, NewCoord, Direction);
+move({X, Y}, right) -> {{X+1, Y+1}, {X+1, Y}};
+move({X, Y}, up) -> {{X-1, Y+1}, {X, Y+1}};
+move({X, Y}, left) -> {{X-1, Y-1}, {X-1, Y}};
+move({X, Y}, down) -> {{X+1, Y-1}, {X, Y-1}}.
 
-spiral_memory([H|T], Map, {X,Y}, left) ->
-    Target = {X-1, Y-1},
-    NewCoord = {X-1, Y},
-    Direction = case Map of
-        #{Target := _} -> left;
-        _ -> down
-    end,
-    spiral_memory(T, Map#{NewCoord => H}, NewCoord, Direction);
-
-spiral_memory([H|T], Map, {X,Y}, down) ->
-    Target = {X+1, Y-1},
-    NewCoord = {X, Y-1},
-    Direction = case Map of
+rotate(down, Target, Map) ->
+    case Map of
         #{Target := _} -> down;
         _ -> right
-    end,
-    spiral_memory(T, Map#{NewCoord => H}, NewCoord, Direction).
+    end;
 
-
-spiral_memory2(Current, _Dict, _Coord, _, Max) when Current > Max ->
-    Current;
-
-spiral_memory2(_, Map, {X,Y}, right, Max) ->
-    Target = {X+1, Y+1},
-    NewCoord = {X+1, Y},
-    Neighbours = get_valid_neighbours(NewCoord, Map),
-    Value = lists:sum(Neighbours),
-    Direction = case Map of
-        #{Target := _} -> right;
-        _ -> up
-    end,
-    spiral_memory2(Value, Map#{NewCoord => Value}, NewCoord, Direction, Max);
-
-spiral_memory2(_, Map, {X,Y}, up, Max) ->
-    Target = {X-1, Y+1},
-    NewCoord = {X, Y+1},
-    Neighbours = get_valid_neighbours(NewCoord, Map),
-    Value = lists:sum(Neighbours),
-    Direction = case Map of
-        #{Target := _} -> up;
-        _ -> left
-    end,
-    spiral_memory2(Value, Map#{NewCoord => Value}, NewCoord, Direction, Max);
-    
-spiral_memory2(_, Map, {X,Y}, left, Max) ->
-    Target = {X-1, Y-1},
-    NewCoord = {X-1, Y},
-    Neighbours = get_valid_neighbours(NewCoord, Map),
-    Value = lists:sum(Neighbours),
-    Direction = case Map of
+rotate(left, Target, Map) ->
+    case Map of
         #{Target := _} -> left;
         _ -> down
-    end,
-    spiral_memory2(Value, Map#{NewCoord => Value}, NewCoord, Direction, Max);
+    end;
 
-spiral_memory2(_, Map, {X,Y}, down, Max) ->
-    Target = {X+1, Y-1},
-    NewCoord = {X, Y-1},
-    Neighbours = get_valid_neighbours(NewCoord, Map),
-    Value = lists:sum(Neighbours),
-    Direction = case Map of
-        #{Target := _} -> down;
-        _ -> right
-    end,
-    spiral_memory2(Value, Map#{NewCoord => Value}, NewCoord, Direction, Max).
+rotate(up, Target, Map) ->
+    case Map of
+        #{Target := _} -> up;
+        _ -> left
+    end;
+
+rotate(right, Target, Map) ->
+    case Map of
+        #{Target := _} -> right;
+        _ -> up
+    end.
 
 input() ->
     {ok, Data} = file:read_file("../inputs/day3_data.txt"),
