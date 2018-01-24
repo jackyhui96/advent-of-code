@@ -3,28 +3,25 @@
 
 main() ->
     Input = input(),
-    Length = length(Input),
+    Size = byte_size(Input),
     
-    Part1 = calc_captcha(Input, 1),
-    Part2 = calc_captcha(Input, round(Length/2)),
+    Part1 = calc_captcha(Input, Size, 1),
+    Part2 = calc_captcha(Input, Size, round(Size/2)),
     {Part1, Part2}.
 
-calc_captcha(List, Offset) ->
-    Length = length(List),
-    calc_captcha(List, 1, Offset, Length, 0).
+calc_captcha(Bin, Size, Offset) ->
+    calc_captcha(Bin, 0, Offset, Size, 0).
 
-calc_captcha(_, Index, _, Length, Acc) when Index > Length -> Acc;
-calc_captcha(List, Index, Offset, Length, Acc) ->
-    Val = lists:nth(Index, List), 
-    TargetIndex = (Index - 1 + Offset) rem Length + 1,
-    NewAcc = case lists:nth(TargetIndex, List) of
-        Val -> 
-            Acc + Val;
-        _ -> 
-            Acc
+calc_captcha(_, Index, _, Size, Sum) when Index >= Size -> Sum;
+calc_captcha(Bin, Index, Offset, Size, Sum) ->
+    Val = binary:at(Bin, Index), 
+    TargetIndex = (Index + Offset) rem Size,
+    NewAcc = case binary:at(Bin, TargetIndex) of
+        Val -> Sum + Val;
+        _ -> Sum
     end,
-    calc_captcha(List, Index+1, Offset, Length, NewAcc).
+    calc_captcha(Bin, Index + 1, Offset, Size, NewAcc).
 
 input() ->
     {ok, Data} = file:read_file("../inputs/day1_data.txt"),
-    [ X - $0 || <<X>> <= Data, X =/= $\n].
+    << <<(X - $0)>> || <<X>> <= Data, X =/= $\n>>.
