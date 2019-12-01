@@ -73,7 +73,7 @@ find_root([{Name1,_} = Node|Rest], Nodes) ->
 format_bin_lines(BinLines) ->
     lists:foldl(fun format_bin/2, #{}, BinLines).
 
-format_bin(Bin, Acc) ->
+format_bin(<<Bin/binary>>, Acc) ->
     {BracketStartPos, _} = binary:match(Bin, <<"(">>),
     <<Name/binary>> = binary:part(Bin, {0, BracketStartPos-1}),
     {BracketEndPos, _} = binary:match(Bin, <<")">>),
