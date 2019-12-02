@@ -3,11 +3,14 @@
 
 
 parse_input(Day, Type) ->
+    parse_input(Day, Type, <<"\n">>).
+    
+parse_input(Day, Type, SplitBy) ->
     {ok, Data} = file:read_file("../inputs/" ++ Day ++ "_data.txt"),
-    Lines = binary:split(Data, <<"\n">>, [global, trim_all]),
+    SplitResult = binary:split(Data, SplitBy, [global, trim_all]),
     case Type of
         integer ->
-            [binary_to_integer(X) || X <- Lines];
+            [binary_to_integer(X) || X <- SplitResult];
         binary ->
-            Lines
+            SplitResult
     end.
