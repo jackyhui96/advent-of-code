@@ -1,5 +1,5 @@
 -module(aoc_helper).
--export([parse_input/2]).
+-export([parse_input/2, parse_input/3]).
 
 
 parse_input(Day, Type) ->
