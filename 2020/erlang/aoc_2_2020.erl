@@ -62,10 +62,14 @@ example_test_() ->
         {{1, 3, <<"b">>}, <<"cdefg">>},
         {{2, 9, <<"c">>}, <<"ccccccccc">>}
     ],
-    ?_assertEqual(2, part1(Input)),
-    ?_assertEqual(1, part2(Input)).
+    [
+        ?_assertEqual(2, part1(Input)),
+        ?_assertEqual(1, part2(Input))
+    ].
 
 puzzle_test_() ->
     Input = input(),
-    ?_assertEqual(536, part1(Input)),
-    ?_assertEqual(558, part2(Input)).
+    [
+        ?_assertEqual(536, part1(Input)),
+        ?_assertEqual(558, part2(Input))
+    ].

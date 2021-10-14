@@ -49,10 +49,14 @@ input() ->
 
 example_test_() ->
     Input = [1721, 979, 366, 299, 675, 1456],
-    ?_assertEqual(514579, part1(Input)),
-    ?_assertEqual(241861950, part2(Input)).
+    [
+        ?_assertEqual(514579, part1(Input)),
+        ?_assertEqual(241861950, part2(Input))
+    ].
 
 puzzle_test_() ->
     Input = input(),
-    ?_assertEqual(73371, part1(Input)),
-    ?_assertEqual(127642310, part2(Input)).
+    [
+        ?_assertEqual(73371, part1(Input)),
+        ?_assertEqual(127642310, part2(Input))
+    ].
